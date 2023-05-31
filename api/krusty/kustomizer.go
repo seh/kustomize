@@ -4,6 +4,7 @@
 package krusty
 
 import (
+	stderrors "errors"
 	"fmt"
 	"log"
 
@@ -12,6 +13,7 @@ import (
 	"sigs.k8s.io/kustomize/api/internal/target"
 	"sigs.k8s.io/kustomize/api/internal/utils"
 	"sigs.k8s.io/kustomize/api/konfig"
+	"sigs.k8s.io/kustomize/api/loader"
 	fLdr "sigs.k8s.io/kustomize/api/loader"
 	"sigs.k8s.io/kustomize/api/provenance"
 	"sigs.k8s.io/kustomize/api/provider"
@@ -55,9 +57,16 @@ func MakeKustomizer(o *Options) *Kustomizer {
 func (b *Kustomizer) Run(
 	fSys filesys.FileSystem, path string) (resmap.ResMap, error) {
 	resmapFactory := resmap.NewFactory(b.depProvider.GetResourceFactory())
-	lr := fLdr.RestrictionNone
-	if b.options.LoadRestrictions == types.LoadRestrictionsRootOnly {
+	var lr loader.LoadRestrictorFunc
+	switch b.options.LoadRestrictions {
+	case types.LoadRestrictionsNone:
+		lr = fLdr.RestrictionNone
+	case types.LoadRestrictionsDominatedShallowly:
+		lr = fLdr.RestrictionDominatedShallowly
+	case types.LoadRestrictionsRootOnly:
 		lr = fLdr.RestrictionRootOnly
+	case types.LoadRestrictionsUnknown:
+		return nil, stderrors.New("no known load restriction is in effect")
 	}
 	ldr, err := fLdr.NewLoader(lr, path, fSys)
 	if err != nil {

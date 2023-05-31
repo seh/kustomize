@@ -5,6 +5,8 @@ package loader
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 )
@@ -13,7 +15,8 @@ type LoadRestrictorFunc func(
 	filesys.FileSystem, filesys.ConfirmedDir, string) (string, error)
 
 func RestrictionRootOnly(
-	fSys filesys.FileSystem, root filesys.ConfirmedDir, path string) (string, error) {
+	fSys filesys.FileSystem, root filesys.ConfirmedDir, path string,
+) (string, error) {
 	d, f, err := fSys.CleanedAbs(path)
 	if err != nil {
 		return "", err
@@ -29,7 +32,26 @@ func RestrictionRootOnly(
 	return d.Join(f), nil
 }
 
+func RestrictionDominatedShallowly(
+	fSys filesys.FileSystem, root filesys.ConfirmedDir, path string,
+) (string, error) {
+	d, f, err := fSys.CleanedAbs(path)
+	if err != nil {
+		return "", err
+	}
+	if f == "" {
+		return "", fmt.Errorf("'%s' must resolve to a file", path)
+	}
+	if rootPath := root.String(); rootPath != string(filepath.Separator) {
+		if !strings.HasPrefix(filepath.Dir(path)+string(filepath.Separator), rootPath+string(filepath.Separator)) {
+			return "", fmt.Errorf("security: file '%s' is not in or below '%s'", path, root)
+		}
+	}
+	return d.Join(f), nil
+}
+
 func RestrictionNone(
-	_ filesys.FileSystem, _ filesys.ConfirmedDir, path string) (string, error) {
+	_ filesys.FileSystem, _ filesys.ConfirmedDir, path string,
+) (string, error) {
 	return path, nil
 }

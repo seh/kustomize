@@ -26,19 +26,26 @@ func AddFlagLoadRestrictor(set *pflag.FlagSet) {
 func validateFlagLoadRestrictor() error {
 	switch theFlags.loadRestrictor {
 	case types.LoadRestrictionsRootOnly.String(),
-		types.LoadRestrictionsNone.String(), "":
+		types.LoadRestrictionsDominatedShallowly.String(),
+		types.LoadRestrictionsNone.String(),
+		"":
 		return nil
 	default:
 		return fmt.Errorf(
 			"illegal flag value --%s %s; legal values: %v",
 			flagLoadRestrictorName, theFlags.loadRestrictor,
-			[]string{types.LoadRestrictionsRootOnly.String(),
-				types.LoadRestrictionsNone.String()})
+			[]string{
+				types.LoadRestrictionsRootOnly.String(),
+				types.LoadRestrictionsDominatedShallowly.String(),
+				types.LoadRestrictionsNone.String(),
+			})
 	}
 }
 
 func getFlagLoadRestrictorValue() types.LoadRestrictions {
 	switch theFlags.loadRestrictor {
+	case types.LoadRestrictionsDominatedShallowly.String():
+		return types.LoadRestrictionsDominatedShallowly
 	case types.LoadRestrictionsNone.String(), "none":
 		return types.LoadRestrictionsNone
 	default:

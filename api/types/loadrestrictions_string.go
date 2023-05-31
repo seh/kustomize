@@ -10,12 +10,13 @@ func _() {
 	var x [1]struct{}
 	_ = x[LoadRestrictionsUnknown-0]
 	_ = x[LoadRestrictionsRootOnly-1]
-	_ = x[LoadRestrictionsNone-2]
+	_ = x[LoadRestrictionsDominatedShallowly-2]
+	_ = x[LoadRestrictionsNone-3]
 }
 
-const _LoadRestrictions_name = "LoadRestrictionsUnknownLoadRestrictionsRootOnlyLoadRestrictionsNone"
+const _LoadRestrictions_name = "LoadRestrictionsUnknownLoadRestrictionsRootOnlyLoadRestrictionsDominatedShallowlyLoadRestrictionsNone"
 
-var _LoadRestrictions_index = [...]uint8{0, 23, 47, 67}
+var _LoadRestrictions_index = [...]uint8{0, 23, 47, 81, 101}
 
 func (i LoadRestrictions) String() string {
 	if i < 0 || i >= LoadRestrictions(len(_LoadRestrictions_index)-1) {
